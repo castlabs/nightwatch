@@ -113,7 +113,21 @@ module.exports = {
 
             assert.ok(fileExistsSync(simpleReportFile), 'The simple report file was not created.');
             assert.ok(fileExistsSync(tagsReportFile), 'The tags report file was not created.');
-            done();
+
+            fs.readFile(simpleReportFile, function(err, data) {
+              if (err) {
+                return done(err);
+              }
+
+              var content = data.toString();
+              try {
+                assert.ok(/<testsuite[\s]+name="simple\.sample"[\s]+errors="0"[\s]+failures="0"[\s]+hostname=""[\s]+id=""[\s]+package="simple"[\s]+skipped="0"[\s]+tests="1"/.test(content), 'Report does not contain correct testsuite information.');
+                assert.ok(/<testcase[\s]+name="simpleDemoTest"[\s]+classname="simple\.sample"[\s]+time="[.\d]+"[\s]+assertions="1">/.test(content), 'Report does not contain the correct testcase element.');
+                done();
+              } catch (err) {
+                done(err);
+              }
+            });
           } catch (err) {
             done(err);
           }
@@ -188,7 +202,7 @@ module.exports = {
           }
           var content = data.toString();
           try {
-            assert.ok(content.indexOf('<failure message="AssertionError: 1 == 0 - expected &quot;0&quot; but got: &quot;1&quot;">') > 0, 'Report contains failure information.')
+            assert.ok(content.indexOf('<failure message="AssertionError: 1 == 0 - expected &#34;0&#34; but got: &#34;1&#34;">') > 0, 'Report contains failure information.')
             done();
           } catch (err) {
             done(err);
